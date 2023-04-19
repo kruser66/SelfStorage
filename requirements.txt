@@ -4,3 +4,5 @@ django-debug-toolbar==4.0.0
 gunicorn==20.1.0
 django-phonenumber-field==7.0.2
 phonenumbers==8.13.9
+qrcode==7.4.2
+Pillow==9.5.0
