@@ -81,7 +81,7 @@ class Box(models.Model):
         verbose_name_plural = 'боксы'
 
     def __str__(self):
-        return f'{self.address}-{self.volume}--{self.dimension}--{self.price}'
+        return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
 
     # def save(self, *args, **kwargs):
     #     qr_image = qrcode.make(f'{self.client.get_full_name} - {self.address} - {self.size}')
@@ -95,65 +95,37 @@ class Box(models.Model):
     #     super().save(*args, **kwargs)
 
 
-class Order(models.Model):
-    ORDER_STATE_CHOICES = [
-        ('accepted', 'Обрабатывается'),
-        ('done', 'Выполнен')
-    ]
-    PAYMENT_CHOICES = [
-        ('specify', 'Выяснить'),
-        ('cash', 'Наличные'),
-        ('card', 'Карта')
-    ]
+class Rental(models.Model):
     client = models.ForeignKey(
         User,
-        related_name='orders',
-        verbose_name="заказы",
-        blank=True,
-        null=True,
+        related_name='rents',
+        verbose_name="аренда",
         on_delete=models.CASCADE,
     )
     box = models.ForeignKey(
         Box,
-        related_name='orders',
-        verbose_name="заказы",
-        blank=True,
-        null=True,
+        related_name='rents',
+        verbose_name="аренда",
         on_delete=models.CASCADE,
     )
-    status = models.CharField(
-        'Статус',
-        max_length=50,
-        choices=ORDER_STATE_CHOICES,
-        default='Обрабатывается',
-        blank=True,
-        db_index=True
-    )
     comment = models.TextField('Комментарий к заказу', blank=True)
-    registered_at = models.DateTimeField(
+    started_at = models.DateField(
         'начало аренды',
-        default=timezone.now,
-        blank=True,
+        auto_now_add=True,
         db_index=True,
     )
-    end_at = models.DateTimeField(
+    expired_at = models.DateField(
         'конец аренды',
-        default=timezone.now,
+        null=True,
         blank=True,
         db_index=True,
     )
-    pay_method = models.CharField(
-        'Способ оплаты',
-        max_length=50,
-        choices=PAYMENT_CHOICES,
-        default='Выяснить',
-        blank=True,
-        db_index=True
-    )
+    paid = models.BooleanField('Оплачен', default=False)
 
     class Meta:
-        verbose_name = 'заказ'
-        verbose_name_plural = 'заказы'
+        verbose_name = 'договор аренды'
+        verbose_name_plural = 'договора аренды'
+        ordering = ['-expired_at']
 
     def __str__(self):
-        return f'{self.status} {self.registered_at}'
+        return f'{self.client} срок окончания: {self.expired_at}'
