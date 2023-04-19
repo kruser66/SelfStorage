@@ -36,6 +36,7 @@ class Box(models.Model):
         db_index=True,
     )
     temperature = models.IntegerField('температура')
+    code = models.ImageField('qr', blank=True, upload_to='qr_code')
 
     class Meta:
         verbose_name = 'бокс'
