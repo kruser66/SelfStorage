@@ -11,4 +11,5 @@ urlpatterns = [
     path('my-rent-empty/', my_rent_empty, name='my-rent-empty'),
     path('boxes/', boxes, name='boxes'),
     path('__debug__/', include('debug_toolbar.urls')),
+    path('', include('notification.urls'))
 ]
