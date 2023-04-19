@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from storage.models import Storage, Box
 
 
 def index(request):
@@ -18,4 +19,12 @@ def my_rent_empty(request):
 
 
 def boxes(request):
-    return render(request, 'boxes.html')
+
+    storages = Storage.objects.all()
+    
+    
+    return render(
+        request,
+        template_name="boxes.html",
+        context={'storages': storages,}
+    )
