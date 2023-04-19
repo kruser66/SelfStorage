@@ -1,11 +1,9 @@
 from yookassa import Configuration, Payment
 from yookassa.domain.request import PaymentRequest
-from environs import Env
+from django.conf import settings
 
-env = Env()
-env.read_env()
 
-Configuration.configure(env('YOOKASSA_SHOP_ID'), env('YOOKASSA_SECRET_KEY'))
+Configuration.configure(settings.YOOKASSA_SHOP_ID, settings.YOOKASSA_SECRET_KEY)
 
 
 def create_payment(order_id, amount, return_url):
@@ -23,4 +21,5 @@ def create_payment(order_id, amount, return_url):
     }
 
     payment = Payment.create(PaymentRequest(payment_data))
+    
     return payment
