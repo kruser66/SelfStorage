@@ -14,9 +14,11 @@ urlpatterns = [
     path('my-rent-empty/', my_rent_empty, name='my-rent-empty'),
     path('boxes/', boxes, name='boxes'),
     path('create_order/', create_selfstorage_order, name='create_order'),
-    path('__debug__/', include('debug_toolbar.urls')),
     path('', include('notification.urls'))
-] 
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    import debug_toolbar
+    urlpatterns = [
+        path(r'__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

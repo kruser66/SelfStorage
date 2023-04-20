@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from django.urls import reverse
-
+from django.db.models import F, Min, Count
 from storage.models import Box, Order, Storage
 
 from .payments import create_payment
@@ -23,8 +23,12 @@ def my_rent_empty(request):
 
 
 def boxes(request):
-
-    storages = Storage.objects.all()
+    
+    storages = Storage.objects.all().prefetch_related('boxes') \
+        .annotate(min_price=Min(F('boxes__price'))) \
+        .annotate(count=Count('boxes__id'))
+        
+    
     return render(
         request,
         template_name="boxes.html",
