@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<main class="container mt-header">
+  <div class="row" role="tablist">
+    <div class="col-lg-3 d-flex flex-column nav nav-pills">
+      <button class="ps-0 btn bg-white fs_24 shadow-none SelfStorage_orange SelfStorage_tab active" id="LK-tab"
+        data-bs-toggle="pill" data-bs-target="#LK" type="button" role="tab" aria-controls="LK"
+        aria-selected="true">Личный кабинет</button>
+      <button class="ps-0 btn bg-white fs_24 shadow-none SelfStorage_grey SelfStorage_tab" id="Rent-tab"
+        data-bs-toggle="pill" data-bs-target="#Rent" type="button" role="tab" aria-controls="Rent"
+        aria-selected="false">Моя аренда</button>
+      <a href="/faq" class="btn fs_24 shadow-none text-decoration-none SelfStorage_grey SelfStorage_tab">FAQ</a>
+      <a href="{% url 'users:logout' %}"
+        class="btn fs_24 shadow-none text-decoration-none SelfStorage_grey SelfStorage_tab">Выйти</a>
+    </div>
+    <div class="col-lg-9">
+      <div class="card tab-content p-5">
+        <div class="tab-pane fade show active" id="LK" role="tabpanel" aria-labelledby="LK-tab">
+          <div class="row">
+            <div class="col-12 col-sm-5 d-flex flex-column align-items-center">
+              {% if user.avatar %}
+              <img src="{{ user.avatar.url }}" class="rounded-pill mb-3" style="width: 180px" alt="">
+              {% else %}
+              <div class="rounded-pill mb-3 d-flex justify-content-center align-items-center"
+                style="width: 180px; height:180px; background-color: lightgray">
+                <span class="text-white text-uppercase fw-bold display-2">
+                  {{ user.first_name|first }}{{user.last_name|first }}
+                </span>
+              </div>
+              {% endif%}
+              <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+            </div>
+            <div class="col-12 col-sm-7 d-flex flex-column">
+              <form action="{% url 'users:account' %}" method="post">
+                {% csrf_token %}
+                <label class="fs_24 SelfStorage_green ms-2" for="EMAIL">E-mail</label>
+                {{ form.email.errors }}
+                {{ form.email }}
+                <label class="fs_24 SelfStorage_green ms-2" for="PHONE">Телефон</label>
+                {{ form.phonenumber.errors }}
+                {{ form.phonenumber }}
+                <label class="fs_24 SelfStorage_green ms-2" for="PASSWORD">Пароль</label>
+                {{ form.password.errors }}
+                {{ form.password }}
+                <button type="submit" class="btn SelfStorage_green ps-1" id="save"
+                  style="display: none">Сохранить</button>
+                <a class="btn SelfStorage_orange ps-1" style="display: none" id="cancel">Отмена</a>
+                <a class="btn SelfStorage_orange ps-1" id="edit">Редактировать</a>
+                <script>
+                  const email_field = document.getElementById('id_email')
+                  const phone_field = document.getElementById('id_phonenumber')
+                  const password_field = document.getElementById('id_password')
+                  const edit_link = document.getElementById('edit')
+                  const save_button = document.getElementById('save')
+                  const cancel_link = document.getElementById('cancel')
+
+                  email_field.value = '{{ user.email }}'
+                  {% if user.phonenumber %}
+                  phone_field.value = '{{ user.phonenumber }}'
+                  {% else %}
+                  phone_field.value = 'Не указан'
+                  {% endif %}
+                  password_field.value = 'password'
+
+                  edit_link.addEventListener('click', e => {
+                    e.preventDefault()
+                    email_field.disabled = false
+                    phone_field.disabled = false
+                    password_field.disabled = false
+                    password_field.type = 'text'
+                    password_field.value = ''
+                    edit_link.style.display = 'none'
+                    save_button.style.display = 'inline-block'
+                    cancel_link.style.display = 'inline-block'
+                  })
+                  cancel_link.addEventListener('click', () => {
+                    setTimeout(() => {
+                      email_field.disabled = true
+                      phone_field.disabled = true
+                      password_field.disabled = true
+                      password_field.type = 'password'
+                      password_field.value = 'password'
+                      edit_link.style.display = 'inline-block'
+                      save_button.style.display = 'none'
+                      cancel_link.style.display = 'none'
+                    }, 0)
+                  })
+                </script>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="Rent" role="tabpanel" aria-labelledby="Rent-tab">
+          <h1 class="fw-bold SelfStorage_green mb-5">Добрый день, {{ user.first_name }}!</h1>
+          <!-- <a href="fixme" class="SelfStorage_orange">История аренды</a>
+          <h4 class="SelfStorage_grey my-3">Срок Вашей аренды подходит к концу :(<br>Вы можете продлить аренду или
+            забрать вещи до 28 июня 2022 года включительно.</h4> -->
+          {% if not paid_orders %}
+          <span>
+            Вы пока не арендовали ни одного склада.
+            <a href="{% url 'boxes:storages' %}" class="SelfStorage_orange">Арендовать.</a>
+          </span>
+          {% else %}
+          {% for order in paid_orders %}
+          <div class="mb-5">
+            <h4 class="SelfStorage_green">Мой склад № {{ forloop.counter }}</h4>
+            <h4>{{ order.box.storage.city }}, {{ order.box.storage.address }}</h4>
+            <h4 class="SelfStorage_green">Мой бокс</h4>
+            <h4>№ {{ order.box.number }}</h4>
+            <h4 class="SelfStorage_green">Срок аренды</h4>
+            <h4>{{ order.lease_start }} - {{ order.lease_end }}</h4>
+            <div>
+              <a href="{% url 'boxes:order-box' order.box.id %}">
+                <button
+                  class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_green SelfStorage__btn2_green mb-3">
+                  Продлить аренду
+                </button>
+              </a>
+            </div>
+            <div>
+              <a href="{% url 'keystore:send_qr' order.id %}">
+                <button
+                  class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">
+                  Открыть бокс
+                </button>
+              </a>
+            </div>
+            <a href="fixme" class="SelfStorage_orange">Нужна помощь?</a>
+          </div>
+          {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
