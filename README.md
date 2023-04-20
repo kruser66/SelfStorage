@@ -4,7 +4,7 @@
 
 ## Как установить
 
-Python 3 должен быть установлен.  
+Python 3 должен быть установлен.
 
 - Скачать проект.
 - Создать виртуальное окружение.
@@ -38,6 +38,8 @@ python manage.py createsuperuser
 ```python
 SECRET_KEY=YOUR_SECRET_KEY
 ALLOWED_HOSTS=YOUR_HOST_NAME_OR_ADDRESS
+YOOKASSA_SHOP_ID=YOUR_SHOPID
+YOOKASSA_SECRET_KEY=YOUR_YOOKASSA_SECRET_KEY
 ```
 
 ### Старт проекта

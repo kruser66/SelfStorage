@@ -6,3 +6,4 @@ django-phonenumber-field==7.0.2
 phonenumbers==8.13.9
 qrcode==7.4.2
 Pillow==9.5.0
+yookassa==2.3.5

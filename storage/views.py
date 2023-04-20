@@ -88,11 +88,34 @@ def my_rent_empty(request):
 
 
 def boxes(request):
-
-    storages = Storage.objects.all()
-
+    
+    storages = Storage.objects.all().prefetch_related('boxes') \
+        .annotate(box_min_price=Min(F('boxes__price'))) \
+        .annotate(box_count=Count('boxes')) \
+        .annotate(box_free=Count('boxes', filter=Q(boxes__busy=False)))
+        
+    
     return render(
         request,
         template_name="boxes.html",
-        context={'storages': storages,}
+        context={'storages': storages}
     )
+
+
+def create_selfstorage_order(request):
+    if request.method == 'POST':
+        # Получите данные из формы (или другого источника) и создайте новый заказ
+        description = request.POST['description']
+        amount = request.POST['amount']
+
+        # Создайте экземпляр заказа и сохраните его в базе данных
+        order = Order(user=request.user, description=description, amount=amount)
+        order.save()
+
+        # Создайте платеж в ЮKassa
+        payment = create_payment(order.pk, amount, request.build_absolute_uri(reverse('payment_success')))
+
+        # Перенаправьте пользователя на страницу оплаты
+        return redirect(payment.confirmation.confirmation_url)
+
+    return render(request, 'create_order.html')

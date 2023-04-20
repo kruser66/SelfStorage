@@ -51,7 +51,7 @@ class Storage(models.Model):
         'Адрес склада',
         max_length=200
     )
-    image = models.ImageField(
+    image= models.ImageField(
         'Внешний вид склада',
         upload_to='images',
         blank=True
