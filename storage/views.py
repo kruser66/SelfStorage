@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from storage.payments import create_payment
 from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Min
+from django.db.models import Count, Min, F, Q
 from .models import Order
 
 # ################## LOGIN ############################
