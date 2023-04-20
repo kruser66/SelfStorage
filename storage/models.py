@@ -113,7 +113,7 @@ class Box(models.Model):
     #     db_index=True,
     # )
     # # temperature = models.IntegerField('температура')
-    code = models.ImageField('qr', blank=True, upload_to='qr_code')
+    # code = models.ImageField('qr', blank=True, upload_to='qr_code')
 
     class Meta:
         verbose_name = 'бокс'
@@ -122,16 +122,16 @@ class Box(models.Model):
     def __str__(self):
         return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
 
-    def save(self, *args, **kwargs):
-        qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
-        qr_offset = Image.new('RGB', (512, 512), 'white')
-        qr_offset.paste(qr_image)
-        files_name = f'{self.storage}-{self.id}qr.png'
-        stream = BytesIO()
-        qr_offset.save(stream, 'PNG')
-        self.code.save(files_name, File(stream), save=False)
-        qr_offset.close
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
+    #     qr_offset = Image.new('RGB', (512, 512), 'white')
+    #     qr_offset.paste(qr_image)
+    #     files_name = f'{self.storage}-{self.id}qr.png'
+    #     stream = BytesIO()
+    #     qr_offset.save(stream, 'PNG')
+    #     self.code.save(files_name, File(stream), save=False)
+    #     qr_offset.close
+    #     super().save(*args, **kwargs)
 
 
 class Rental(models.Model):
