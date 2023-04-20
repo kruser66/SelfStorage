@@ -101,6 +101,11 @@ class Box(models.Model):
         upload_to='images',
         blank=True
     )
+    busy = models.BooleanField(
+        'Бокс занят',
+        db_index=True,
+        default=False
+    )
     # feature = models.CharField(
     #     'Особенность',
     #     max_length=200,
