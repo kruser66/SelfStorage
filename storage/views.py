@@ -1,10 +1,15 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from storage.models import Storage
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+
+from storage.payments import create_payment
 from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from django.core.exceptions import ValidationError
-
+from django.db.models import Count, Min
+from .models import Order
 
 # ################## LOGIN ############################
 
@@ -88,13 +93,12 @@ def my_rent_empty(request):
 
 
 def boxes(request):
-    
+
     storages = Storage.objects.all().prefetch_related('boxes') \
         .annotate(box_min_price=Min(F('boxes__price'))) \
         .annotate(box_count=Count('boxes')) \
         .annotate(box_free=Count('boxes', filter=Q(boxes__busy=False)))
-        
-    
+
     return render(
         request,
         template_name="boxes.html",
