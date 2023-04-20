@@ -16,7 +16,6 @@ urlpatterns = [
     path('my-rent/', views.my_rent, name='my-rent'),
     path('my-rent-empty/', views.my_rent_empty, name='my-rent-empty'),
     path('boxes/', views.boxes, name='boxes'),
-    path('__debug__/', include('debug_toolbar.urls')),
     path('', include('notification.urls')),
     # login/logout
     path("register", views.register_user, name="register"),
