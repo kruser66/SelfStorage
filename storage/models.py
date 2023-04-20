@@ -51,7 +51,7 @@ class Storage(models.Model):
         'Адрес склада',
         max_length=200
     )
-    image= models.ImageField(
+    image = models.ImageField(
         'Внешний вид склада',
         upload_to='images',
         blank=True
@@ -163,3 +163,21 @@ class Rental(models.Model):
 
     def __str__(self):
         return f'{self.client} срок окончания: {self.expired_at}'
+
+
+class Order(models.Model):
+    STATUS_CHOICES = (
+        ('NEW', 'Новый'),
+        ('PAID', 'Оплачен'),
+        ('CANCELED', 'Отменен'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Заказ #{self.pk} - {self.description}'
