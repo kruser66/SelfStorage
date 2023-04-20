@@ -5,7 +5,41 @@ from django.core.files import File
 from PIL import Image
 from django.utils import timezone
 from django.core.validators import MinValueValidator
-from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+from phonenumber_field.modelfields import PhoneNumberField
+from .managers import UserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(_("email address"), unique=True)
+    first_name = models.CharField(_("first name"), max_length=150, blank=True)
+    last_name = models.CharField(_("last name"), max_length=150, blank=True)
+    phonenumber = PhoneNumberField("телефон", db_index=True, blank=True)
+    avatar = models.ImageField("аватарка", blank=True)
+    is_active = models.BooleanField(
+        ("active"),
+        default=True,
+        help_text=_(
+            "Designates whether this user should be treated as active. "
+            "Unselect this instead of deleting accounts."
+        ),
+    )
+    is_staff = models.BooleanField(
+        ("staff status"),
+        default=False,
+        help_text=("Designates whether the user can log into this admin site."),
+    )
+    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+
+    USERNAME_FIELD = "email"
+    EMAIL_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
+    def __str__(self):
+        return self.email
 
 
 class Storage(models.Model):
@@ -17,7 +51,7 @@ class Storage(models.Model):
         'Адрес склада',
         max_length=200
     )
-    image= models.ImageField(
+    image = models.ImageField(
         'Внешний вид склада',
         upload_to='images',
         blank=True
@@ -62,7 +96,7 @@ class Box(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    image= models.ImageField(
+    image = models.ImageField(
         'Изображение боксов',
         upload_to='images',
         blank=True
@@ -83,16 +117,16 @@ class Box(models.Model):
     def __str__(self):
         return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
 
-    # def save(self, *args, **kwargs):
-    #     qr_image = qrcode.make(f'{self.client.get_full_name} - {self.address} - {self.size}')
-    #     qr_offset = Image.new('RGB', (310, 310), 'white')
-    #     qr_offset.paste(qr_image)
-    #     files_name = f'{self.client.get_full_name}-{self.id}qr.png'
-    #     stream = BytesIO()
-    #     qr_offset.save(stream, 'PNG')
-    #     self.code.save(files_name, File(stream), save=False)
-    #     qr_offset.close
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        qr_image = qrcode.make(f'{self.client.get_full_name} - {self.address} - {self.size}')
+        qr_offset = Image.new('RGB', (512, 512), 'white')
+        qr_offset.paste(qr_image)
+        files_name = f'{self.client.get_full_name}-{self.id}qr.png'
+        stream = BytesIO()
+        qr_offset.save(stream, 'PNG')
+        self.code.save(files_name, File(stream), save=False)
+        qr_offset.close
+        super().save(*args, **kwargs)
 
 
 class Rental(models.Model):
