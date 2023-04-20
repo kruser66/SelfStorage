@@ -57,23 +57,23 @@ def login_user(request):
     return render(request, "users/login.html", {"form": form})
 
 
-@login_required(login_url="users:login")
-def account(request):
-    user = request.user
-    paid_orders = user.orders.filter(payments__is_paid=True)
-    if request.method == "POST":
-        form = AccountForm(request.POST)
-        if form.is_valid():
-            user.email = form.cleaned_data["email"]
-            user.phonenumber = form.cleaned_data["phonenumber"]
-            user.phonenumber = form.cleaned_data["phonenumber"]
-            user.set_password(form.cleaned_data["password"])
-            user.save()
-    else:
-        form = AccountForm()
+# @login_required(login_url="users:login")
+# def account(request):
+#     user = request.user
+#     paid_orders = user.orders.filter(payments__is_paid=True)
+#     if request.method == "POST":
+#         form = AccountForm(request.POST)
+#         if form.is_valid():
+#             user.email = form.cleaned_data["email"]
+#             user.phonenumber = form.cleaned_data["phonenumber"]
+#             user.phonenumber = form.cleaned_data["phonenumber"]
+#             user.set_password(form.cleaned_data["password"])
+#             user.save()
+#     else:
+#         form = AccountForm()
 
-    context = {"user": user, "paid_orders": paid_orders, "form": form}
-    return render(request, "account.html", context)
+#     context = {"user": user, "paid_orders": paid_orders, "form": form}
+#     return render(request, "account.html", context)
 
 
 # ################### PAGES ###########################
@@ -85,8 +85,22 @@ def faq(request):
     return render(request, 'faq.html')
 
 
+@login_required(login_url="users:login")
 def my_rent(request):
-    return render(request, 'my-rent.html')
+    user = request.user
+    paid_orders = user.orders.filter(status='PAID')
+    if request.method == "POST":
+        form = AccountForm(request.POST)
+        if form.is_valid():
+            user.email = form.cleaned_data["email"]
+            user.phonenumber = form.cleaned_data["phonenumber"]
+            user.set_password(form.cleaned_data["password"])
+            user.save()
+    else:
+        form = AccountForm()
+
+    context = {"user": user, "paid_orders": paid_orders, "form": form}
+    return render(request, 'my-rent.html', context)
 
 
 def my_rent_empty(request):
