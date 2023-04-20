@@ -68,6 +68,7 @@ class Box(models.Model):
         upload_to='images',
         blank=True
     )
+    busy = models.BooleanField('Бокс занят', db_index=True, default=False)
     # feature = models.CharField(
     #     'Особенность',
     #     max_length=200,
@@ -83,6 +84,7 @@ class Box(models.Model):
 
     def __str__(self):
         return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
+    
 
     # def save(self, *args, **kwargs):
     #     qr_image = qrcode.make(f'{self.client.get_full_name} - {self.address} - {self.size}')
