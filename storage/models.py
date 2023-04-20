@@ -113,7 +113,7 @@ class Box(models.Model):
     #     db_index=True,
     # )
     # # temperature = models.IntegerField('температура')
-    # code = models.ImageField('qr', blank=True, upload_to='qr_code')
+    code = models.ImageField('qr', blank=True, upload_to='qr_code')
 
     class Meta:
         verbose_name = 'бокс'
@@ -123,10 +123,10 @@ class Box(models.Model):
         return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
 
     def save(self, *args, **kwargs):
-        qr_image = qrcode.make(f'{self.client.get_full_name} - {self.address} - {self.size}')
+        qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
         qr_offset = Image.new('RGB', (512, 512), 'white')
         qr_offset.paste(qr_image)
-        files_name = f'{self.client.get_full_name}-{self.id}qr.png'
+        files_name = f'{self.storage}-{self.id}qr.png'
         stream = BytesIO()
         qr_offset.save(stream, 'PNG')
         self.code.save(files_name, File(stream), save=False)
@@ -138,13 +138,13 @@ class Rental(models.Model):
     client = models.ForeignKey(
         User,
         related_name='rents',
-        verbose_name="аренда",
+        verbose_name="клиент",
         on_delete=models.CASCADE,
     )
     box = models.ForeignKey(
         Box,
         related_name='rents',
-        verbose_name="аренда",
+        verbose_name="бокс",
         on_delete=models.CASCADE,
     )
     comment = models.TextField('Комментарий к заказу', blank=True)
