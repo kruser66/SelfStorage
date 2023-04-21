@@ -13,7 +13,7 @@ from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Min, F, Q
 
-from .models import Order, User, Rental
+from .models import Order, User, Rental, Box
 
 
 def user_login(request):
@@ -187,10 +187,25 @@ def boxes(request):
         .annotate(box_count=Count('boxes')) \
         .annotate(box_free=Count('boxes', filter=Q(boxes__busy=False)))
 
+    boxes = []
+    all_storages = Storage.objects.prefetch_related()
+    for storage in all_storages:
+        free_boxes = Box.objects.filter(storage=storage, busy=False).prefetch_related()
+        for box in free_boxes:
+            box_stats = {
+                'id': box.id,
+                'floor': box.floor,
+                'volume': int(box.volume),
+                'dimension': box.dimension,
+                'price': box.price,
+            }
+            boxes.append(box_stats)
+
     return render(
         request,
         template_name="boxes.html",
-        context={'storages': storages}
+        context={'storages': storages,
+                 'boxes': boxes}
     )
 
 
@@ -211,3 +226,4 @@ def create_selfstorage_order(request):
         return redirect(payment.confirmation.confirmation_url)
 
     return render(request, 'create_order.html')
+
