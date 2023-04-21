@@ -194,15 +194,7 @@ class Order(models.Model):
         ('CANCELED', 'Отменен'),
     )
 
-<<<<<<< HEAD
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-=======
-    user = models.ForeignKey(User,
-        related_name='orders',
-        verbose_name="заказы",
-        on_delete=models.CASCADE
-    )
->>>>>>> 6c680c5 (fix order and html)
     description = models.TextField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
