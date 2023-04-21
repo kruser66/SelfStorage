@@ -1,14 +1,16 @@
-from django.db import models
-import qrcode
 from io import BytesIO
+
+import qrcode
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.files import File
-from PIL import Image
-from django.utils import timezone
 from django.core.validators import MinValueValidator
+from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
+from PIL import Image
+
 from .managers import UserManager
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -96,24 +98,19 @@ class Box(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    image = models.ImageField(
-        'Изображение боксов',
-        upload_to='images',
-        blank=True
-    )
     busy = models.BooleanField(
         'Бокс занят',
         db_index=True,
         default=False
     )
-    # feature = models.CharField(
-    #     'Особенность',
-    #     max_length=200,
-    #     blank=True,
-    #     db_index=True,
-    # )
-    # # temperature = models.IntegerField('температура')
-    # code = models.ImageField('qr', blank=True, upload_to='qr_code')
+    code = models.ImageField('qr', blank=True, upload_to='qr_code')
+
+    def open(self):
+        if not self.busy:
+            raise ValueError("Бокс уже открыт")
+        self.busy = False
+        self.save()
+        return True
 
     class Meta:
         verbose_name = 'бокс'
@@ -122,16 +119,29 @@ class Box(models.Model):
     def __str__(self):
         return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
 
-    # def save(self, *args, **kwargs):
-    #     qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
-    #     qr_offset = Image.new('RGB', (512, 512), 'white')
-    #     qr_offset.paste(qr_image)
-    #     files_name = f'{self.storage}-{self.id}qr.png'
-    #     stream = BytesIO()
-    #     qr_offset.save(stream, 'PNG')
-    #     self.code.save(files_name, File(stream), save=False)
-    #     qr_offset.close
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
+        qr_offset = Image.new('RGB', (512, 512), 'white')
+        qr_offset.paste(qr_image)
+        files_name = f'{self.storage}-{self.id}qr.png'
+        stream = BytesIO()
+        qr_offset.save(stream, 'PNG')
+        self.code.save(files_name, File(stream), save=False)
+        qr_offset.close
+        super().save(*args, **kwargs)
+
+
+class Image(models.Model):
+    image = models.ImageField('Изображение бокса', blank=True, upload_to='boxes')
+    box = models.ForeignKey(Box, related_name='images', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'фотография бокса'
+        verbose_name_plural = 'фотографии боксов'
+
+
+    def __str__(self):
+        return f'{self.box.storage}'
 
 
 class Rental(models.Model):
@@ -160,6 +170,13 @@ class Rental(models.Model):
         db_index=True,
     )
     paid = models.BooleanField('Оплачен', default=False)
+    price = models.DecimalField(
+        'стоимость аренды',
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        default=0
+    )
 
     class Meta:
         verbose_name = 'договор аренды'
