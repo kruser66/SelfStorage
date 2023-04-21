@@ -1,18 +1,20 @@
 from random import choice
 
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from storage.models import Storage
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-
-from storage.payments import create_payment
-from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Min, F, Q
+from django.core.mail import send_mail
+from django.db.models import Count, F, Min, Q
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
-from .models import Order, User, Rental, Box
+from storage.models import Storage
+from storage.payments import create_payment, get_payment_status
+
+from .forms import AccountForm, CustomUserCreationForm, LoginForm
+from .models import Box, Order, Rental, User
 
 from storage.sendmail import send_email
 
@@ -236,3 +238,37 @@ def create_selfstorage_order(request):
 
     return render(request, 'create_order.html')
 
+
+def send_email_payment_success(user_email):
+    subject = 'Успешная оплата заказа'
+    message = 'Ваш заказ успешно оплачен. Спасибо за покупку!'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [user_email]
+
+    send_mail(subject, message, from_email, recipient_list)
+
+
+def payment_success(request):
+    payment_id = request.GET.get('paymentId')
+    if payment_id:
+        status = get_payment_status(payment_id)
+        if status == 'succeeded':
+            # Найти заказ по payment_id и обновить его статус
+            order = Order.objects.filter(payment_id=payment_id).first()
+            if order:
+                order.status = 'PAID'
+                order.save()
+
+                # Отправить уведомление пользователю
+                user_email = order.user.email
+                send_email_payment_success(user_email)  # предполагается, что вы реализовали функцию send_email_payment_success
+
+                return render(request, 'payment_success.html')
+            else:
+                return render(request, 'payment_error.html', {'error': 'Заказ не найден'})
+        else:
+            # Ваш код для обработки неуспешной оплаты
+            return render(request, 'payment_error.html', {'error': 'Оплата не выполнена'})
+    else:
+        # Ваш код для обработки случая, когда параметр paymentId отсутствует
+        return render(request, 'payment_error.html', {'error': 'Отсутствует идентификатор платежа'})

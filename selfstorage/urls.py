@@ -15,6 +15,7 @@ urlpatterns = [
     # path('my-rent-empty/', views.my_rent_empty, name='my-rent-empty'),
     path('boxes/', views.boxes, name='boxes'),
     path('', include('notification.urls')),
+    path('payment_success/', views.payment_success, name='payment_success'),
     # login/logout
     # path("register", views.register_user, name="register"),
     # path("login", views.login_user, name="login"),
