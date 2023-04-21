@@ -15,6 +15,7 @@ urlpatterns = [
     # path('my-rent-empty/', views.my_rent_empty, name='my-rent-empty'),
     path('boxes/', views.boxes, name='boxes'),
     path('', include('notification.urls')),
+    path('payment_success/', views.payment_success, name='payment_success'),
     # login/logout
     # path("register", views.register_user, name="register"),
     # path("login", views.login_user, name="login"),
@@ -29,7 +30,7 @@ urlpatterns = [
     path("register", views.user_register, name="register"),
     path("edit", views.edit, name="edit"),
     
-]    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 if settings.DEBUG:
