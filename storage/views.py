@@ -1,4 +1,5 @@
 from random import choice
+from pprint import pprint
 
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -16,6 +17,7 @@ from .models import Order, User, Rental
 
 
 def user_login(request):
+    pprint(request.__dict__)
     if request.method == "POST":
         email=request.POST['EMAIL']
         password=request.POST['PASSWORD']
@@ -24,9 +26,10 @@ def user_login(request):
         if user is not None:
             if user.is_active:
                 login(request, user)    
-            return redirect("/my-rent")
+            return redirect('/my-rent')
         
         return redirect("/")
+
 
 
 def user_register(request):
@@ -151,7 +154,7 @@ def faq(request):
     return render(request, 'faq.html')
 
 
-# @login_required(login_url="users:login")
+# @login_required(login_url="login")
 def my_rent(request):
     user = request.user
     if user.is_authenticated:
