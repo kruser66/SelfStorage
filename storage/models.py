@@ -98,11 +98,6 @@ class Box(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    image = models.ImageField(
-        'Изображение боксов',
-        upload_to='images',
-        blank=True
-    )
     busy = models.BooleanField(
         'Бокс занят',
         db_index=True,
@@ -143,6 +138,19 @@ class Box(models.Model):
         super().save(*args, **kwargs)
 
 
+class Image(models.Model):
+    image = models.ImageField('Изображение бокса', blank=True, upload_to='boxes')
+    box = models.ForeignKey(Box, related_name='images', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'фотография бокса'
+        verbose_name_plural = 'фотографии боксов'
+
+
+    def __str__(self):
+        return f'{self.box.storage}'
+
+
 class Rental(models.Model):
     client = models.ForeignKey(
         User,
@@ -169,6 +177,13 @@ class Rental(models.Model):
         db_index=True,
     )
     paid = models.BooleanField('Оплачен', default=False)
+    price = models.DecimalField(
+        'стоимость аренды',
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        default=0
+    )
 
     class Meta:
         verbose_name = 'договор аренды'
