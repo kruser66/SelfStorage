@@ -10,15 +10,15 @@ from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Min, F, Q
 
-from .models import Order
+from .models import Order, User
 
 
-def new_login(request):
+def user_login(request):
     if request.method == "POST":
         email=request.POST['EMAIL']
         password=request.POST['PASSWORD']
         user = authenticate(username=email, password=password)
-        print(user)
+
         if user is not None:
             if user.is_active:
                 login(request, user)
@@ -26,8 +26,23 @@ def new_login(request):
     return redirect("/my-rent")
 
 
-def register(request):
-    pass
+def user_register(request):
+    if request.method == "POST":
+
+        email=request.POST['EMAIL_CREATE']
+        password=request.POST['PASSWORD_CREATE']
+        password_confirm=request.POST['PASSWORD_CONFIRM']
+        
+        if password == password_confirm:
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                is_staff=False
+            )
+            user.save()
+            login(request, user)
+            return redirect("/my-rent")
+    return redirect("/")
 
 
 def recovery_password(request):
@@ -43,6 +58,8 @@ def edit(request):
     if request.method == "POST":
         user = request.user
         user.email=request.POST['EMAIL_EDIT']
+        user.first_name=request.POST['FIRSTNAME_EDIT']
+        user.last_name=request.POST['LASTNAME_EDIT']
         user.phonenumber=request.POST['PHONE_EDIT']
         # user.password=request.POST['PASSWORD_EDIT']
         user.save()
