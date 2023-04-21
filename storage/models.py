@@ -103,13 +103,6 @@ class Box(models.Model):
         db_index=True,
         default=False
     )
-    # feature = models.CharField(
-    #     'Особенность',
-    #     max_length=200,
-    #     blank=True,
-    #     db_index=True,
-    # )
-    # # temperature = models.IntegerField('температура')
     code = models.ImageField('qr', blank=True, upload_to='qr_code')
 
     def open(self):
