@@ -1,3 +1,5 @@
+from random import choice
+
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -135,7 +137,14 @@ def edit(request):
 
 # ################### PAGES ###########################
 def index(request):
-    return render(request, 'index.html')
+    storages = Storage.objects.all().prefetch_related('boxes') \
+        .annotate(box_min_price=Min(F('boxes__price'))) \
+        .annotate(box_count=Count('boxes')) \
+        .annotate(box_free=Count('boxes', filter=Q(boxes__busy=False)))
+        
+    random_storage = choice(storages)
+        
+    return render(request, 'index.html', {"random_storage": random_storage})
 
 
 def faq(request):
@@ -170,7 +179,6 @@ def my_rent(request):
 
 
 def boxes(request):
-
     storages = Storage.objects.all().prefetch_related('boxes') \
         .annotate(box_min_price=Min(F('boxes__price'))) \
         .annotate(box_count=Count('boxes')) \
