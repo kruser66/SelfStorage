@@ -35,11 +35,30 @@ python manage.py createsuperuser
 
 ### Установить переменные окружения
 
+- для работы сайта Django:
+
 ```python
 SECRET_KEY=YOUR_SECRET_KEY
 ALLOWED_HOSTS=YOUR_HOST_NAME_OR_ADDRESS
+```
+
+- для проведения оплат:
+
+```python
 YOOKASSA_SHOP_ID=YOUR_SHOPID
 YOOKASSA_SECRET_KEY=YOUR_YOOKASSA_SECRET_KEY
+```
+
+- для отправки уведомлений:
+
+```python
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST='your_smtp_host'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER='your_email'
+EMAIL_HOST_PASSWORD='your_email_password'
+ADMIN_EMAIL='your_email'
 ```
 
 ### Старт проекта
