@@ -18,14 +18,18 @@ urlpatterns = [
     path('boxes/', views.boxes, name='boxes'),
     path('', include('notification.urls')),
     # login/logout
-    path("register", views.register_user, name="register"),
-    path("login", views.login_user, name="login"),
-    path(
-        "logout",
-        LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL),
-        name="logout",
-    ),
-    path("account", views.account, name="account"),
+    # path("register", views.register_user, name="register"),
+    # path("login", views.login_user, name="login"),
+    # path(
+    #     "logout",
+    #     LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL),
+    #     name="logout",
+    # ),
+    # path("account/", views.account, name="account"),
+    path("login", views.new_login, name="login"),
+    path("logout", views.user_logout, name="logout"),
+    path("edit", views.edit, name="edit"),
+    
 ]    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
