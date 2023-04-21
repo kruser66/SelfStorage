@@ -142,22 +142,26 @@ def faq(request):
     return render(request, 'faq.html')
 
 
-@login_required(login_url="users:login")
+# @login_required(login_url="users:login")
 def my_rent(request):
     user = request.user
-    paid_orders = user.orders.filter(status='PAID')
-    if request.method == "POST":
-        form = AccountForm(request.POST)
-        if form.is_valid():
-            user.email = form.cleaned_data["email"]
-            user.phonenumber = form.cleaned_data["phonenumber"]
-            user.set_password(form.cleaned_data["password"])
-            user.save()
+    if user.is_authenticated:
+        return render(request, 'my-rent.html')
     else:
-        form = AccountForm()
+        return redirect("/") 
+    # paid_orders = user.orders.filter(status='PAID')
+    # if request.method == "POST":
+    #     form = AccountForm(request.POST)
+    #     if form.is_valid():
+    #         user.email = form.cleaned_data["email"]
+    #         user.phonenumber = form.cleaned_data["phonenumber"]
+    #         user.set_password(form.cleaned_data["password"])
+    #         user.save()
+    # else:
+    #     form = AccountForm()
 
-    context = {"user": user, "paid_orders": paid_orders, "form": form}
-    return render(request, 'my-rent.html', context)
+    # context = {"user": user, "paid_orders": paid_orders, "form": form}
+    # return render(request, 'my-rent.html', context)
 
 
 def my_rent_empty(request):
