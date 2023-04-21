@@ -1,4 +1,3 @@
-from pprint import pprint
 from random import choice
 
 from django.conf import settings
@@ -17,9 +16,10 @@ from storage.payments import create_payment, get_payment_status
 from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from .models import Box, Order, Rental, User
 
+from storage.sendmail import send_email
 
 def user_login(request):
-    pprint(request.__dict__)
+
     if request.method == "POST":
         email=request.POST['EMAIL']
         password=request.POST['PASSWORD']
@@ -54,8 +54,17 @@ def user_register(request):
 
 
 def recovery_password(request):
-    pass
-
+    if request.method == "POST":
+        email=request.POST['EMAIL_FORGET']
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return redirect("/")
+        subject = 'SelfStorage: Восстановление пароля'
+        message = f'{user.first_name}, Вы запросили восстановление пароля. К сожалению мы не можем его восстановить ))'
+        send_email(subject, message, [email])
+    return redirect("/")
+         
 
 def user_logout(request):
     logout(request)

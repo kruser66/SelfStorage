@@ -29,8 +29,9 @@ urlpatterns = [
     path("logout", views.user_logout, name="logout"),
     path("register", views.user_register, name="register"),
     path("edit", views.edit, name="edit"),
-    
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path("recovery", views.recovery_password, name="recovery"),
+        
+]    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 if settings.DEBUG:
