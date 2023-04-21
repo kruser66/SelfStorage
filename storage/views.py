@@ -211,7 +211,10 @@ def boxes(request):
                 'price': box.price,
             }
             boxes.append(box_stats)
-
+    
+    boxes = sorted(boxes, key=lambda x: x['price']) 
+    print(len(boxes))   
+    
     return render(
         request,
         template_name="boxes.html",
