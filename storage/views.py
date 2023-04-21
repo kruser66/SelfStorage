@@ -1,5 +1,4 @@
 from random import choice
-from pprint import pprint
 
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -15,9 +14,10 @@ from django.db.models import Count, Min, F, Q
 
 from .models import Order, User, Rental, Box
 
+from storage.sendmail import send_email
 
 def user_login(request):
-    pprint(request.__dict__)
+
     if request.method == "POST":
         email=request.POST['EMAIL']
         password=request.POST['PASSWORD']
@@ -52,8 +52,17 @@ def user_register(request):
 
 
 def recovery_password(request):
-    pass
-
+    if request.method == "POST":
+        email=request.POST['EMAIL_FORGET']
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return redirect("/")
+        subject = 'SelfStorage: Восстановление пароля'
+        message = f'{user.first_name}, Вы запросили восстановление пароля. К сожалению мы не можем его восстановить ))'
+        send_email(subject, message, [email])
+    return redirect("/")
+         
 
 def user_logout(request):
     logout(request)
