@@ -42,7 +42,6 @@ def user_logout(request):
 def edit(request):
     if request.method == "POST":
         user = request.user
-        print(user.email)
         user.email=request.POST['EMAIL_EDIT']
         user.phonenumber=request.POST['PHONE_EDIT']
         # user.password=request.POST['PASSWORD_EDIT']
@@ -118,7 +117,6 @@ def edit(request):
 
 # ################### PAGES ###########################
 def index(request):
-    print(request.user)
     return render(request, 'index.html')
 
 
