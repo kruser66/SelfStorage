@@ -10,7 +10,7 @@ from .forms import AccountForm, CustomUserCreationForm, LoginForm
 from django.core.exceptions import ValidationError
 from django.db.models import Count, Min, F, Q
 
-from .models import Order, User
+from .models import Order, User, Rental
 
 
 def user_login(request):
@@ -146,7 +146,12 @@ def faq(request):
 def my_rent(request):
     user = request.user
     if user.is_authenticated:
-        return render(request, 'my-rent.html')
+        print(user.id)
+        
+        rentals = Rental.objects.filter(client=user, box__busy=True)
+        print(rentals)
+        
+        return render(request, 'my-rent.html', {'rentals': rentals})
     else:
         return redirect("/") 
     # paid_orders = user.orders.filter(status='PAID')
@@ -162,10 +167,6 @@ def my_rent(request):
 
     # context = {"user": user, "paid_orders": paid_orders, "form": form}
     # return render(request, 'my-rent.html', context)
-
-
-def my_rent_empty(request):
-    return render(request, 'my-rent-empty.html')
 
 
 def boxes(request):
