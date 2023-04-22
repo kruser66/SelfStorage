@@ -58,8 +58,8 @@
 	</article>
 	<article class="pt-header" id="BOX">
 		<div class="tab-content" id="boxes-content">
-			{% for storage in storages %}
-				<div class="tab-pane fade show active" id="storage-{{storage.id}}" role="tabpanel" aria-labelledby="storage-{{storage.id}}-tab">
+			{% for storage in storages %}		
+				<div class="tab-pane fade show {% if forloop.first %}active{% endif %}" id="storage-{{storage.id}}" role="tabpanel" aria-labelledby="storage-{{storage.id}}-tab">
 					<h1 class="text-center mb-4 fw-bold">{{storage}}</h1>
 					<div class="row d-flex flex-column mb-5">
 						<div class="col-12 col-sm-6 col-lg-4 d-flex justify-content-between align-self-center">
@@ -76,7 +76,7 @@
 					</div>
 					<div class="row">
 						<div class="col-12 col-lg-6">
-							<div id="carouselExampleControls1" class="carousel slide" data-bs-ride="carousel">
+							<div id="carousel-storage{{storage.id}}" class="carousel slide" data-bs-ride="carousel">
 								<div class="carousel-inner">
 									<div class="carousel-item active">
 										<div class="d-flex flex-column align-items-center">
@@ -90,13 +90,13 @@
 									</div>
 								</div>
 								<div class="w-100 d-flex justify-content-center my-3">
-									<button data-bs-target="#carouselExampleControls1" data-bs-slide="prev" class="btn rounded-pill d-flex justify-content-center align-items-center SelfStorage__bg_green" style="width: 66px; height: 66px;">
+									<button data-bs-target="#carousel-storage{{storage.id}}" data-bs-slide="prev" class="btn rounded-pill d-flex justify-content-center align-items-center SelfStorage__bg_green" style="width: 66px; height: 66px;">
 										<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#fff" class="bi bi-chevron-left" viewBox="0 0 16 16">
 											<path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
 										</svg>
 									</button>
 									<div style="width: 1rem"></div>
-									<button data-bs-target="#carouselExampleControls1" data-bs-slide="next" class="btn rounded-pill d-flex justify-content-center align-items-center SelfStorage__bg_green" style="width: 66px; height: 66px;">
+									<button data-bs-target="#carousel-storage{{storage.id}}" data-bs-slide="next" class="btn rounded-pill d-flex justify-content-center align-items-center SelfStorage__bg_green" style="width: 66px; height: 66px;">
 										<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="#fff" class="bi bi-chevron-right" viewBox="0 0 16 16">
 											<path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
 										</svg>
@@ -127,8 +127,8 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			{% endfor %}
+				</div>			
+			{% endfor %}			
 		</div>
 		<form class="row mt-5 d-none">
 			<div class="col-6 col-lg-3">
@@ -164,6 +164,7 @@
 		</ul>
 		<div class="tab-content" id="pills-tabContent">
 			<div class="tab-content" id="pills-tabContent">
+
 				<!-- Все Боксы  -->
 				<div class="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-home-tab">
 					{% for box in boxes %}
@@ -323,8 +324,7 @@
 						</script>
 					</div>	
 				</div>
-		  
-		  
+		  		  
 				<!-- Боксы от 10 -->
 				<div class="tab-pane fade" id="pills-from10" role="tabpanel" aria-labelledby="pills-contact-tab">
 					{% for box in boxes %}
@@ -378,8 +378,10 @@
 						</script>
 					</div>	
 				</div>
+
 			</div>
 		</div>
+
 	</article>
 </main>
 {% endblock %}
