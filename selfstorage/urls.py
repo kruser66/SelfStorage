@@ -9,22 +9,15 @@ from storage import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('faq/', views.faq, name='faq'),
-    path('create_order/', views.create_selfstorage_order, name='create_order'),
-    path('my-rent/', views.my_rent, name='my-rent'),
-    # path('my-rent-empty/', views.my_rent_empty, name='my-rent-empty'),
     path('boxes/', views.boxes, name='boxes'),
-    path('', include('notification.urls')),
+    
+    path('faq/', views.faq, name='faq'),
+    path('my-rent/', views.my_rent, name='my-rent'),
+    path('open-box/<int:id>', views.open_box, name='open-box'),
+
+    path('create_order/', views.create_selfstorage_order, name='create_order'),
     path('payment_success/', views.payment_success, name='payment_success'),
-    # login/logout
-    # path("register", views.register_user, name="register"),
-    # path("login", views.login_user, name="login"),
-    # path(
-    #     "logout",
-    #     LogoutView.as_view(next_page=settings.LOGOUT_REDIRECT_URL),
-    #     name="logout",
-    # ),
-    # path("account/", views.account, name="account"),
+
     path("login", views.user_login, name="login"),
     path("logout", views.user_logout, name="logout"),
     path("register", views.user_register, name="register"),

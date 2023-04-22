@@ -1,4 +1,8 @@
+import os
+import qrcode
 from random import choice
+from io import BytesIO
+from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
@@ -12,7 +16,7 @@ from storage.payments import create_payment, get_payment_status
 
 from .models import Box, Order, Rental, User
 
-from storage.sendmail import send_email
+from storage.sendmail import send_email, send_email_with_attach
 
 
 def user_login(request):
@@ -86,6 +90,24 @@ def index(request):
     random_storage = choice(storages)
         
     return render(request, 'index.html', {"random_storage": random_storage})
+
+
+def open_box(request, id):
+    rental = Rental.objects.get(id=id)
+    client = rental.client.first_name
+    storage = rental.box.storage
+    box = rental.box.id
+    qr_image = qrcode.make(f'{client}, {storage}, {box}, {rental.expired_at}')
+    filename = f'{client}-{storage.id}-{box}.jpg'
+    qr_image.save(filename)
+    
+    subject = 'SelfStorage: QR-код'
+    message = f'{client}! \n Высылаем Вам QR-код для открытия Вашей ячейки'
+    emails = [rental.client.email]
+    send_email_with_attach(subject, message, emails, filename)
+    os.remove(filename)
+
+    return redirect("/my-rent")  
 
 
 def faq(request):
