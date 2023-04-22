@@ -198,21 +198,21 @@ def boxes(request):
         .annotate(box_count=Count('boxes')) \
         .annotate(box_free=Count('boxes', filter=Q(boxes__busy=False)))
 
-    boxes = []
-    all_storages = Storage.objects.prefetch_related()
-    for storage in all_storages:
-        free_boxes = Box.objects.filter(storage=storage, busy=False).prefetch_related()
-        for box in free_boxes:
-            box_stats = {
-                'id': box.id,
-                'floor': box.floor,
-                'volume': int(box.volume),
-                'dimension': box.dimension,
-                'price': box.price,
-            }
-            boxes.append(box_stats)
+    # boxes = []
+    # all_storages = Storage.objects.prefetch_related()
+    # for storage in all_storages:
+    #     free_boxes = Box.objects.filter(storage=storage, busy=False).prefetch_related()
+    #     for box in free_boxes:
+    #         box_stats = {
+    #             'id': box.id,
+    #             'floor': box.floor,
+    #             'volume': int(box.volume),
+    #             'dimension': box.dimension,
+    #             'price': box.price,
+    #         }
+    #         boxes.append(box_stats)
     
-    boxes = sorted(boxes, key=lambda x: x['price']) 
+    # boxes = sorted(boxes, key=lambda x: x['price']) 
     
     return render(
         request,

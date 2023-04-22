@@ -81,6 +81,18 @@ class Storage(models.Model):
     def __str__(self):
         return f'{self.city} {self.address}'
 
+    def get_volume_all(self):
+        return self.boxes.filter(busy=False)
+
+    def get_volume_to3(self):
+        return self.boxes.filter(volume__lt=3, busy=False)
+
+    def get_volume_to10(self):
+        return self.boxes.filter(volume__lt=10, busy=False)
+
+    def get_volume_from10(self):
+        return self.boxes.filter(volume__gte=10, busy=False)
+
 
 class Box(models.Model):
     storage = models.ForeignKey(
@@ -105,20 +117,21 @@ class Box(models.Model):
     )
     code = models.ImageField('qr', blank=True, upload_to='qr_code')
 
+    class Meta:
+        verbose_name = 'бокс'
+        verbose_name_plural = 'боксы'
+        ordering = ['price']
+
+    def __str__(self):
+        return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
+    
     def open(self):
         if not self.busy:
             raise ValueError("Бокс уже открыт")
         self.busy = False
         self.save()
         return True
-
-    class Meta:
-        verbose_name = 'бокс'
-        verbose_name_plural = 'боксы'
-
-    def __str__(self):
-        return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
-
+    
     # def save(self, *args, **kwargs):
     #     qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
     #     qr_offset = Image.new('RGB', (512, 512), 'white')
