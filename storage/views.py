@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.db.models import Count, F, Min, Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.timezone import now, timedelta
 
 from storage.models import Storage
 from storage.payments import create_payment, get_payment_status
@@ -117,7 +118,9 @@ def faq(request):
 def my_rent(request):
     user = request.user
     if user.is_authenticated:       
-        rentals = Rental.objects.filter(client=user, box__busy=True)   
+        rentals = Rental.objects.filter(client=user, closed=False) \
+            .annotate(to6month=F('expired_at') + timedelta(days=180)) \
+            .annotate(overprice=F('price') * 2)
              
         return render(request, 'my-rent.html', {'rentals': rentals})
     

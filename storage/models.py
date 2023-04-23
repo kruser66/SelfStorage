@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
+from django.utils.timezone import now, timedelta
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -27,7 +27,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False,
         help_text=("Designates whether the user can log into this admin site."),
     )
-    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    date_joined = models.DateTimeField(_("date joined"), default=now)
 
     USERNAME_FIELD = "email"
     EMAIL_FIELD = "email"
@@ -177,6 +177,7 @@ class Rental(models.Model):
         blank=True,
         db_index=True,
     )
+    closed = models.BooleanField('Закрыт', default=False)
     paid = models.BooleanField('Оплачен', default=False)
     price = models.DecimalField(
         'стоимость аренды',
@@ -193,6 +194,12 @@ class Rental(models.Model):
 
     def __str__(self):
         return f'{self.client} срок окончания: {self.expired_at}'
+
+    def is_expired_soon(self):
+        return self.expired_at - timedelta(days=10) > now().date()
+    
+    def is_expired(self):
+        return now().date() > self.expired_at
 
 
 class Order(models.Model):
