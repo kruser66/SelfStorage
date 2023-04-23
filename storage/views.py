@@ -99,7 +99,7 @@ def open_box(request, id):
     storage = rental.box.storage
     box = rental.box.id
     qr_image = qrcode.make(f'{client}, {storage}, {box}, {rental.expired_at}')
-    filename = f'{client}-{storage.id}-{box}.jpg'
+    filename = f'{client}-{storage}-Бокс:{box}-{rental.expired_at}.jpg'
     qr_image.save(filename)
     
     subject = 'SelfStorage: QR-код'
