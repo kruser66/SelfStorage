@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Storage(models.Model):
     city = models.CharField(
         'Город',
-        max_length=100       
+        max_length=100
     )
     address = models.CharField(
         'Адрес склада',
@@ -63,7 +63,11 @@ class Storage(models.Model):
         decimal_places=1,
         validators=[MinValueValidator(0)]
     )
-    temperature = models.IntegerField('Температура на складе', null=True)
+    temperature = models.IntegerField(
+        'Температура на складе',
+        blank=True,
+        null=True
+    )
     benefit = models.CharField(
         'Преимущество',
         max_length=50,
@@ -123,7 +127,7 @@ class Box(models.Model):
 
     def __str__(self):
         return f'{self.storage} -- {self.volume} м3 -- {self.dimension} м -- {self.price} руб.'
-    
+
     def open(self):
         if not self.busy:
             raise ValueError("Бокс уже открыт")
@@ -189,7 +193,7 @@ class Rental(models.Model):
 
     def is_expired_soon(self):
         return self.expired_at - timedelta(days=10) < now().date()
-    
+
     def is_expired(self):
         return now().date() > self.expired_at
 
