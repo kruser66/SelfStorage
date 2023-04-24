@@ -16,7 +16,7 @@ urlpatterns = [
     path('open-box/<int:id>', views.open_box, name='open-box'),
 
     path('create_order/', views.create_selfstorage_order, name='create_order'),
-    path('payment_success/', views.payment_success, name='payment_success'),
+    path('payment_success/<pk>', views.payment_success, name='payment_success'),
     path('payment/<pk>', views.payment, name='payment'),
     
     path("login", views.user_login, name="login"),

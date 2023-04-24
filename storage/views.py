@@ -1,12 +1,9 @@
 import os
 import qrcode
 from random import choice
-from io import BytesIO
-from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.core.mail import send_mail
 from django.db.models import Count, F, Min, Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -17,7 +14,7 @@ from storage.payments import create_payment, get_payment_status
 
 from .models import Box, Order, Rental, User
 
-from storage.sendmail import send_email, send_email_with_attach
+from storage.sendmail import send_email, send_email_with_attach, send_email_payment_success
 
 
 def user_login(request):
@@ -144,10 +141,7 @@ def boxes(request):
 def payment(request, pk):
     
     box = Box.objects.get(id=pk)
-    # print(request.user)
-    # print(isinstance(request.user, User))
-    
-    # return redirect('/')    
+  
     description = f'Аренда склада № {box.id} по адресу: {box.storage} на один месяц'
     amount = box.price
 
@@ -160,7 +154,7 @@ def payment(request, pk):
     order.save()
 
     # Создайте платеж в ЮKassa
-    payment = create_payment(order.pk, amount, description, request.build_absolute_uri(reverse('payment_success')))
+    payment = create_payment(order.pk, amount, description, request.build_absolute_uri(reverse('payment_success', kwargs={'pk': order.pk})))
     order.payment_id = payment.id
     order.save()
  
@@ -168,59 +162,48 @@ def payment(request, pk):
     return redirect(payment.confirmation.confirmation_url)
 
 
-def create_selfstorage_order(request):
-    if request.method == 'POST':
-        # Получите данные из формы (или другого источника) и создайте новый заказ
-        description = request.POST['description']
-        amount = request.POST['amount']
+# def create_selfstorage_order(request):
+#     if request.method == 'POST':
+#         # Получите данные из формы (или другого источника) и создайте новый заказ
+#         description = request.POST['description']
+#         amount = request.POST['amount']
 
-        # Создайте экземпляр заказа и сохраните его в базе данных
-        order = Order(user=request.user, description=description, amount=amount)
+#         # Создайте экземпляр заказа и сохраните его в базе данных
+#         order = Order(user=request.user, description=description, amount=amount)
+#         order.save()
+
+#         # Создайте платеж в ЮKassa
+#         payment = create_payment(order.pk, amount, request.build_absolute_uri(reverse('payment_success')))
+
+#         # Перенаправьте пользователя на страницу оплаты
+#         return redirect(payment.confirmation.confirmation_url)
+
+#     return render(request, 'create_order.html')
+
+
+def payment_success(request, pk):
+
+    user = request.user
+    if not user.is_authenticated:
+        return redirect("/")   
+    
+    order = Order.objects.get(id=pk)
+    status = get_payment_status(order.payment_id)
+    print(status)
+    if status == 'succeeded':
+        # Найти заказ по payment_id и обновить его статус
+        order = Order.objects.get(payment_id=order.payment_id)
+        order.status = 'PAID'
         order.save()
+        
+        rental = Rental.objects.create(
+            client=user,
+            box=order.box,
+            comment=f'Аренду успешно обновлена {now().date()}',
+            expired_at=now() + timedelta(days=30),
+            paid=True,
+            price=order.box.price
+        )
+        send_email_payment_success(user.email)
 
-        # Создайте платеж в ЮKassa
-        payment = create_payment(order.pk, amount, request.build_absolute_uri(reverse('payment_success')))
-
-        # Перенаправьте пользователя на страницу оплаты
-        return redirect(payment.confirmation.confirmation_url)
-
-    return render(request, 'create_order.html')
-
-
-def send_email_payment_success(user_email):
-    subject = 'Успешная оплата заказа'
-    message = 'Ваш заказ успешно оплачен. Спасибо за покупку!'
-    from_email = settings.DEFAULT_FROM_EMAIL
-    recipient_list = [user_email]
-
-    send_mail(subject, message, from_email, recipient_list)
-
-
-def payment_success(request):
-
-    # order = Order.objects.get(id=pk)
-    payment_id = 0
-
-    if payment_id:
-        status = get_payment_status(payment_id)
-        if status == 'succeeded':
-            # Найти заказ по payment_id и обновить его статус
-            order = Order.objects.get(payment_id=payment_id)
-            print(order)
-            if order:
-                order.status = 'PAID'
-                order.save()
-
-                # # Отправить уведомление пользователю
-                # user_email = order.user.email
-                # send_email_payment_success(user_email)  # предполагается, что вы реализовали функцию send_email_payment_success
-
-                return render(request, 'my-rent')
-            else:
-                return render(request, 'payment_error.html', {'error': 'Заказ не найден'})
-        else:
-            # Ваш код для обработки неуспешной оплаты
-            return render(request, 'payment_error.html', {'error': 'Оплата не выполнена'})
-    else:
-        # Ваш код для обработки случая, когда параметр paymentId отсутствует
-        return render(request, 'payment_error.html', {'error': 'Отсутствует идентификатор платежа'})
+    return redirect(reverse('my-rent'))

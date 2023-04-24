@@ -188,7 +188,7 @@ class Rental(models.Model):
         return f'{self.client} срок окончания: {self.expired_at}'
 
     def is_expired_soon(self):
-        return self.expired_at - timedelta(days=10) > now().date()
+        return self.expired_at - timedelta(days=10) < now().date()
     
     def is_expired(self):
         return now().date() > self.expired_at

@@ -95,7 +95,7 @@
 								<h4 class="SelfStorage_green">Срок аренды</h4>
 								<h4>{{rental.started_at}} - {{rental.expired_at}}</h4>
 								<div>
-									<a href="{% url 'create_order' %}" class="col-12" >
+									<a href="{% url 'payment' rental.box.id %}" class="col-12" >
 										<button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_green SelfStorage__btn2_green mb-3">Продлить аренду</button>
 									</a>
 								</div>
@@ -110,7 +110,7 @@
 					{% else %}
 						<h4 class="SelfStorage_grey my-5">У вас еще нет аренды :(<br>Но вы можете арендовать свой первый бокс  по  привлекательной цене прямо сейчас</h4>
 						<div>
-							<a href="{% url 'create_order' %}" class="col-12" >
+							<a href="{% url 'boxes' %}" class="col-12" >
 								<button class="btn fs_24 px-5 py-3 text-white border-8 SelfStorage__bg_orange SelfStorage__btn2_orange mb-3">Арендовать бокс</button>
 							</a>
 						</div>
