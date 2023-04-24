@@ -86,8 +86,16 @@ def index(request):
         .annotate(box_free=Count('boxes', filter=Q(boxes__busy=False)))
         
     random_storage = choice(storages)
+    random_box = choice(random_storage.boxes.all())
         
-    return render(request, 'index.html', {"random_storage": random_storage})
+    return render(
+        request, 
+        'index.html',
+        {
+        "random_storage": random_storage,
+        'random_box': random_box
+        }
+    )
 
 
 def open_box(request, id):

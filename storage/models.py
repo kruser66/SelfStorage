@@ -63,15 +63,15 @@ class Storage(models.Model):
         decimal_places=1,
         validators=[MinValueValidator(0)]
     )
-    temperature = models.IntegerField('Температура на складе', blank=True, null=True)
+    temperature = models.IntegerField('Температура на складе', null=True)
     benefit = models.CharField(
         'Преимущество',
         max_length=50,
         blank=True
     )
-    contact = models.CharField('Контакты', max_length=250)
-    description = models.CharField('Описание', max_length=250)
-    location = models.CharField('Схема проезда', max_length=250)  # TODO сделать карту пока просто текстом
+    contact = models.CharField('Контакты', max_length=250, blank=True)
+    description = models.CharField('Описание', max_length=250, blank=True)
+    location = models.CharField('Схема проезда', max_length=250, blank=True)  # TODO сделать карту пока просто текстом
 
     class Meta:
         verbose_name = 'склад'
