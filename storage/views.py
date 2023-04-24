@@ -162,25 +162,6 @@ def payment(request, pk):
     return redirect(payment.confirmation.confirmation_url)
 
 
-# def create_selfstorage_order(request):
-#     if request.method == 'POST':
-#         # Получите данные из формы (или другого источника) и создайте новый заказ
-#         description = request.POST['description']
-#         amount = request.POST['amount']
-
-#         # Создайте экземпляр заказа и сохраните его в базе данных
-#         order = Order(user=request.user, description=description, amount=amount)
-#         order.save()
-
-#         # Создайте платеж в ЮKassa
-#         payment = create_payment(order.pk, amount, request.build_absolute_uri(reverse('payment_success')))
-
-#         # Перенаправьте пользователя на страницу оплаты
-#         return redirect(payment.confirmation.confirmation_url)
-
-#     return render(request, 'create_order.html')
-
-
 def payment_success(request, pk):
 
     user = request.user
@@ -189,7 +170,7 @@ def payment_success(request, pk):
     
     order = Order.objects.get(id=pk)
     status = get_payment_status(order.payment_id)
-    print(status)
+
     if status == 'succeeded':
         # Найти заказ по payment_id и обновить его статус
         order = Order.objects.get(payment_id=order.payment_id)
@@ -204,6 +185,10 @@ def payment_success(request, pk):
             paid=True,
             price=order.box.price
         )
+        box = order.box
+        box.busy=True
+        box.save()
+        
         send_email_payment_success(user.email)
 
     return redirect(reverse('my-rent'))

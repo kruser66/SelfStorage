@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 def send_email_payment_success(user_email):
     subject = 'SelfStorage: Успешная оплата заказа'
     message = 'Ваш заказ успешно оплачен. Спасибо за покупку!'
-    from_email = settings.DEFAULT_FROM_EMAIL
+    from_email = settings.ADMIN_EMAIL
     recipient_list = [user_email]
 
     send_mail(subject, message, from_email, recipient_list)

@@ -15,7 +15,6 @@ urlpatterns = [
     path('my-rent/', views.my_rent, name='my-rent'),
     path('open-box/<int:id>', views.open_box, name='open-box'),
 
-    # path('create_order/', views.create_selfstorage_order, name='create_order'),
     path('payment_success/<pk>', views.payment_success, name='payment_success'),
     path('payment/<pk>', views.payment, name='payment'),
     
