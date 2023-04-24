@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Box, Storage, Rental, Image
+from .models import Box, Storage, Rental, Image, Order
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
@@ -131,3 +131,8 @@ class ImageAdmin(admin.ModelAdmin):
     readonly_fields = [format_preview_image]
     list_display = ['box', format_preview_image, 'image']
     list_filter = ['box']
+    
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    pass

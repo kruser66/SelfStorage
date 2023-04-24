@@ -1,6 +1,7 @@
 from yookassa import Configuration, Payment
 from yookassa.domain.request import PaymentRequest
 from django.conf import settings
+import uuid
 
 
 Configuration.configure(
@@ -9,7 +10,8 @@ Configuration.configure(
 )
 
 
-def create_payment(order_id, amount, return_url):
+def create_payment(order_id, amount, description, return_url):
+
     payment_data = {
         "amount": {
             "value": amount,
@@ -20,10 +22,11 @@ def create_payment(order_id, amount, return_url):
             "return_url": return_url
         },
         "capture": True,
-        "description": f"Оплата заказа №{order_id}"
+        "description": description
     }
 
-    payment = Payment.create(PaymentRequest(payment_data))
+    payment = Payment.create(PaymentRequest(payment_data), str(uuid.uuid4()))
+
     return payment
 
 

@@ -35,6 +35,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    class Meta:
+        verbose_name = 'клиент'
+        verbose_name_plural = 'клиенты'
+
     def __str__(self):
         return self.email
 
@@ -126,17 +130,6 @@ class Box(models.Model):
         self.busy = False
         self.save()
         return True
-    
-    # def save(self, *args, **kwargs):
-    #     qr_image = qrcode.make(f'{self.storage} - {self.volume} - {self.dimension}')
-    #     qr_offset = Image.new('RGB', (512, 512), 'white')
-    #     qr_offset.paste(qr_image)
-    #     files_name = f'{self.storage}-{self.id}qr.png'
-    #     stream = BytesIO()
-    #     qr_offset.save(stream, 'PNG')
-    #     self.code.save(files_name, File(stream), save=False)
-    #     qr_offset.close
-    #     super().save(*args, **kwargs)
 
 
 class Image(models.Model):
@@ -146,7 +139,6 @@ class Image(models.Model):
     class Meta:
         verbose_name = 'фотография бокса'
         verbose_name_plural = 'фотографии боксов'
-
 
     def __str__(self):
         return f'{self.box.storage}'
@@ -208,13 +200,22 @@ class Order(models.Model):
         ('PAID', 'Оплачен'),
         ('CANCELED', 'Отменен'),
     )
-
+    payment_id = models.CharField(max_length=36, default='0')
+    box = models.ForeignKey(Box, on_delete=models.CASCADE, related_name='boxes')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     description = models.TextField()
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'счет'
+        verbose_name_plural = 'счета'
 
     def __str__(self):
         return f'Заказ #{self.pk} - {self.description}'

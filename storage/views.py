@@ -141,6 +141,32 @@ def boxes(request):
                  'boxes': boxes}
     )
 
+def payment(request, pk):
+    
+    box = Box.objects.get(id=pk)
+    # print(request.user)
+    # print(isinstance(request.user, User))
+    
+    # return redirect('/')    
+    description = f'Аренда склада № {box.id} по адресу: {box.storage} на один месяц'
+    amount = box.price
+
+    # Создайте экземпляр заказа и сохраните его в базе данных
+    order = Order(
+        user=request.user,
+        box=box,
+        description=description,
+        amount=amount)
+    order.save()
+
+    # Создайте платеж в ЮKassa
+    payment = create_payment(order.pk, amount, description, request.build_absolute_uri(reverse('payment_success')))
+    order.payment_id = payment.id
+    order.save()
+ 
+    # Перенаправьте пользователя на страницу оплаты
+    return redirect(payment.confirmation.confirmation_url)
+
 
 def create_selfstorage_order(request):
     if request.method == 'POST':
@@ -171,21 +197,25 @@ def send_email_payment_success(user_email):
 
 
 def payment_success(request):
-    payment_id = request.GET.get('paymentId')
+
+    # order = Order.objects.get(id=pk)
+    payment_id = 0
+
     if payment_id:
         status = get_payment_status(payment_id)
         if status == 'succeeded':
             # Найти заказ по payment_id и обновить его статус
-            order = Order.objects.filter(payment_id=payment_id).first()
+            order = Order.objects.get(payment_id=payment_id)
+            print(order)
             if order:
                 order.status = 'PAID'
                 order.save()
 
-                # Отправить уведомление пользователю
-                user_email = order.user.email
-                send_email_payment_success(user_email)  # предполагается, что вы реализовали функцию send_email_payment_success
+                # # Отправить уведомление пользователю
+                # user_email = order.user.email
+                # send_email_payment_success(user_email)  # предполагается, что вы реализовали функцию send_email_payment_success
 
-                return render(request, 'payment_success.html')
+                return render(request, 'my-rent')
             else:
                 return render(request, 'payment_error.html', {'error': 'Заказ не найден'})
         else:

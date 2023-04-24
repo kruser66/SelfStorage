@@ -17,7 +17,8 @@ urlpatterns = [
 
     path('create_order/', views.create_selfstorage_order, name='create_order'),
     path('payment_success/', views.payment_success, name='payment_success'),
-
+    path('payment/<pk>', views.payment, name='payment'),
+    
     path("login", views.user_login, name="login"),
     path("logout", views.user_logout, name="logout"),
     path("register", views.user_register, name="register"),
